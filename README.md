@@ -25,7 +25,9 @@ This is a simple real-time chat server and client application built using Node.j
 
 Watch the video below to see the working of the chat app:
 
-[![Chat App Demo](https://img.youtube.com/vi/your-video-id/maxresdefault.jpg)](https://www.youtube.com/watch?v=your-video-id)
+
+https://github.com/user-attachments/assets/9860cf04-e6d3-4caa-8f2c-de96d097a267
+
 
 
 

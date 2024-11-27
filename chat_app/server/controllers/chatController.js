@@ -3,6 +3,7 @@ const { log, errorLog } = require("../utils/logger");
 const chatService = require("../services/chatService");
 const { HOST, PORT } = require("../config");
 
+// Handle a new client connection
 const handleNewConnection = (socket) => {
   log("A new client connected");
   chatService.addClient(socket);
@@ -35,12 +36,13 @@ const handleNewConnection = (socket) => {
   });
 };
 
-const startServer = () => {
+// Start the TCP server for local development
+const startTcpServer = () => {
   const server = net.createServer(handleNewConnection);
 
   server.listen(PORT, HOST, () => {
-    log(`Server running at ${HOST}:${PORT}`);
+    log(`TCP server running at ${HOST}:${PORT}`);
   });
 };
 
-module.exports = { startServer };
+module.exports = { startTcpServer };

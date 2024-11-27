@@ -1,53 +1,54 @@
-const net = require('net');
-const { log } = require('./utils/logger');
+const net = require("net");
+const http = require("http");
 
-const PORT = process.env.PORT || 3000; // Use Render's PORT or fallback to 3000 for local testing
+const TCP_PORT = 10000; // TCP Chat Port
+const HTTP_PORT = 8080; // HTTP Health Check Port
 
-// Store connected clients and their names
-const clients = new Map();
+// Store clients
+const clients = [];
 
-const broadcastMessage = (sender, message) => {
-  for (const [socket, name] of clients.entries()) {
-    if (socket !== sender) {
-      socket.write(`${name}: ${message}`);
-    }
-  }
-};
+// TCP Server for Chat
+const tcpServer = net.createServer((socket) => {
+  console.log("A new client connected");
+  socket.write("Welcome to the chat server!\n");
 
-const handleNewConnection = (socket) => {
-  log('A new client connected');
-  socket.write('Enter your name: ');
-
-  let clientName = '';
-
-  socket.on('data', (data) => {
+  socket.on("data", (data) => {
     const message = data.toString().trim();
+    console.log(`Message received: ${message}`);
 
-    if (!clientName) {
-      clientName = message;
-      clients.set(socket, clientName);
-      log(`${clientName} has joined the chat`);
-      socket.write(`Welcome, ${clientName}!\n`);
-      broadcastMessage(socket, `${clientName} has joined the chat\n`);
-    } else {
-      log(`${clientName}: ${message}`);
-      broadcastMessage(socket, `${message}\n`);
-    }
+    // Broadcast to all other clients
+    clients.forEach((client) => {
+      if (client !== socket) client.write(message + "\n");
+    });
   });
 
-  socket.on('error', (err) => {
-    log(`Socket error: ${err.message}`);
+  socket.on("end", () => {
+    console.log("A client disconnected");
+    clients.splice(clients.indexOf(socket), 1);
   });
 
-  socket.on('close', () => {
-    log(`${clientName} disconnected`);
-    clients.delete(socket);
-    broadcastMessage(socket, `${clientName} has left the chat\n`);
-  });
-};
+  socket.on("error", (err) => console.error("Socket error:", err));
 
-const server = net.createServer(handleNewConnection);
+  clients.push(socket);
+});
 
-server.listen(PORT, '0.0.0.0', () => {
-  log(`Server is running on port ${PORT}`);
+// Start TCP Server
+tcpServer.listen(TCP_PORT, () => {
+  console.log(`TCP Chat Server is running on port ${TCP_PORT}`);
+});
+
+// HTTP Server for Health Checks
+const httpServer = http.createServer((req, res) => {
+  if (req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("OK");
+  } else {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
+  }
+});
+
+// Start HTTP Server
+httpServer.listen(HTTP_PORT, () => {
+  console.log(`HTTP Health Check Server is running on port ${HTTP_PORT}`);
 });

@@ -7,7 +7,7 @@ const rl = readline.createInterface({
 });
 
 const SERVER_HOST = 'https://kuvaka-chat-app.onrender.com/'; // Replace with your Render-provided URL or IP address
-const SERVER_PORT = 3000; // Default Render port, replace if needed
+const SERVER_PORT = 10000; // Default Render port, replace if needed
 
 const socket = net.createConnection(SERVER_PORT, SERVER_HOST, () => {
   console.log('Connected to chat server');
